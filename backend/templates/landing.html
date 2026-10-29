@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}CreativeFlow ✦ Creative Freelancer Project Management Platform{% endblock %}
+
+{% block content %}
+<!-- Top Floating Navigation -->
+<nav style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem;">
+  <div style="max-width: 1200px; margin: 0 auto; background: rgba(252, 250, 245, 0.88); backdrop-filter: blur(12px); border: 1px solid rgba(32, 36, 30, 0.1); border-radius: 1rem; padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-soft);">
+    
+    <!-- Brand Logo -->
+    <a href="/" style="display: flex; items: center; gap: 0.75rem;">
+      <div style="width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; background: var(--forest); color: var(--lime-accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem;">
+        <span class="font-editorial" style="font-style: italic;">CF</span>
+      </div>
+      <div>
+        <div class="font-editorial" style="font-size: 1.35rem; font-weight: 600; line-height: 1.1;">
+          Creative<span style="color: var(--forest); font-style: italic;">Flow</span>
+        </div>
+        <div class="font-mono" style="font-size: 0.65rem; color: var(--secondary-text); text-transform: uppercase;">
+          Studio Platform
+        </div>
+      </div>
+    </a>
+
+    <!-- Nav Links -->
+    <div style="display: flex; gap: 2rem; font-size: 0.875rem; font-weight: 500; color: rgba(32, 36, 30, 0.8);">
+      <a href="#features" style="transition: color 0.2s;">Capabilities</a>
+      <a href="#3d-studio" style="transition: color 0.2s;">3D Studio</a>
+      <a href="#workflow" style="transition: color 0.2s;">Methodology</a>
+      <a href="#pricing" style="transition: color 0.2s;">Pricing</a>
+      <a href="#faq" style="transition: color 0.2s;">FAQ</a>
+    </div>
+
+    <!-- Quick Role Switcher & Action -->
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="display: flex; align-items: center; background: var(--cream-200); padding: 0.25rem; border-radius: 0.75rem; font-size: 0.75rem;">
+        <span style="padding: 0 0.5rem; font-size: 0.65rem; font-family: monospace; color: var(--secondary-text);">Role:</span>
+        {% for du in demo_users|slice:":3" %}
+          <a href="/switch-role/{{ du.id }}/" style="padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-weight: 500; {% if current_user.id == du.id %}background: var(--primary-dark); color: var(--cream-50);{% else %}color: var(--primary-dark);{% endif %}">
+            {{ du.first_name }}
+          </a>
+        {% endfor %}
+      </div>
+
+      <a href="/dashboard/" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.875rem;">
+        <span>Open Workspace</span>
+        <span>→</span>
+      </a>
+    </div>
+
+  </div>
+</nav>
+
+<!-- HERO SECTION: SIGNATURE SLICED-SCREEN 3D ARTWORK -->
+<section style="position: relative; padding: 9rem 1.5rem 5rem 1.5rem; text-align: center; background-color: var(--cream-100); overflow: hidden;">
+  
+  <div style="max-width: 900px; margin: 0 auto 3rem auto;">
+    <div class="badge badge-forest" style="margin-bottom: 1.5rem; padding: 0.35rem 1rem;">
+      <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--forest); display: inline-block;"></span>
+      THE CREATIVE FREELANCER OPERATING SYSTEM
+    </div>
+
+    <h1 style="font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 500; line-height: 1.08; color: var(--primary-dark); margin-bottom: 1.5rem;">
+      Your Creative Work.<br>
+      <span style="font-style: italic; color: var(--forest);">Finally in Flow.</span>
+    </h1>
+
+    <p style="font-size: 1.15rem; color: var(--secondary-text); max-width: 650px; margin: 0 auto 2.5rem auto; line-height: 1.6;">
+      Manage every client, milestone brief, deliverable revision, and ReportLab PDF invoice in one organized workspace built for craft designers and studios.
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+      <a href="/dashboard/" class="btn btn-primary" style="padding: 0.875rem 2rem; font-size: 1rem;">
+        <span>Start Free Workspace</span>
+        <span style="color: var(--lime-accent);">→</span>
+      </a>
+      <a href="#features" class="btn btn-secondary" style="padding: 0.875rem 2rem; font-size: 1rem;">
+        <span>Explore Capabilities</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- THE 5 VERTICAL 3D SLICES -->
+  <div class="hero-stage-3d" style="max-width: 1100px; margin: 0 auto;">
+    <div class="slices-container">
+      
+      <!-- Slice 1: Brand System Tokens -->
+      <div class="slice-panel slice-1">
+        <div class="slice-accent-bar" style="background: var(--forest);"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+            <span class="font-mono" style="font-size: 0.65rem; color: var(--secondary-text);">01 / BRAND SYSTEM</span>
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--forest);"></span>
+          </div>
+          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Lumina Tokens</h3>
+          <p style="font-size: 0.75rem; color: var(--secondary-text); margin-bottom: 1rem;">Color token variables & clinical editorial typography.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="padding: 0.5rem; border-radius: 0.5rem; background: var(--forest); color: #fff; font-size: 0.75rem; display: flex; justify-content: space-between;">
+              <span class="font-mono">#52664D</span>
+              <span>Deep Sage</span>
+            </div>
+            <div style="padding: 0.5rem; border-radius: 0.5rem; background: var(--lime-accent); color: var(--primary-dark); font-size: 0.75rem; font-weight: 600; display: flex; justify-content: space-between;">
+              <span class="font-mono">#D7F7A5</span>
+              <span>Lime Glow</span>
+            </div>
+            <div style="padding: 0.5rem; border-radius: 0.5rem; background: var(--cream-200); font-size: 0.75rem; display: flex; justify-content: space-between;">
+              <span class="font-mono">#F8F4EC</span>
+              <span>Warm Ivory</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding-top: 0.75rem; border-top: 1px solid rgba(32,36,30,0.1); display: flex; align-items: center; gap: 0.5rem; text-align: left;">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;">
+          <div style="font-size: 0.7rem; line-height: 1.2;">
+            <div style="font-weight: 600;">Marcus Vance</div>
+            <div style="color: var(--secondary-text);">Client Approved</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slice 2: UI Prototype & Figma Wireframes -->
+      <div class="slice-panel slice-2">
+        <div class="slice-accent-bar" style="background: var(--lime-dark);"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+            <span class="font-mono" style="font-size: 0.65rem; color: var(--forest); font-weight: 600;">02 / UI PROTOTYPE</span>
+            <span class="badge badge-forest" style="font-size: 0.6rem;">v2.1 FINAL</span>
+          </div>
+          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Diagnostic UI</h3>
+          <p style="font-size: 0.75rem; color: var(--secondary-text); margin-bottom: 1rem;">Biomarker visualizations with responsive mobile tabs.</p>
+
+          <div style="background: var(--cream-100); border-radius: 1rem; padding: 0.75rem; border: 1px solid rgba(32,36,30,0.1); margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--secondary-text); margin-bottom: 0.35rem;">
+              <span>Cholesterol Ratio</span>
+              <span style="color: var(--forest); font-weight: 700;">Optimal 3.1</span>
+            </div>
+            <div class="progress-track" style="height: 6px; margin-bottom: 0.5rem;">
+              <div class="progress-fill" style="width: 75%;"></div>
+            </div>
+            <div style="display: flex; gap: 0.25rem;">
+              <span style="font-size: 0.55rem; padding: 0.2rem 0.4rem; background: #fff; border-radius: 4px;">Daily</span>
+              <span style="font-size: 0.55rem; padding: 0.2rem 0.4rem; background: var(--forest); color: #fff; border-radius: 4px;">Monthly</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: var(--cream-50); padding: 0.6rem; border-radius: 0.75rem; font-size: 0.7rem; color: var(--secondary-text); text-align: left;">
+          48 Figma components verified
+        </div>
+      </div>
+
+      <!-- Slice 3: Central Studio Dashboard (Dominant Centerpiece) -->
+      <div class="slice-panel slice-3">
+        <div class="slice-accent-bar" style="background: linear-gradient(90deg, var(--forest), var(--lime-accent), var(--forest));"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; align-items: center;">
+            <span class="badge badge-lime" style="font-size: 0.7rem;">LIVE WORKSPACE</span>
+            <span class="font-mono" style="font-weight: 700; color: var(--forest); font-size: 0.85rem;">$18,500</span>
+          </div>
+          <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.15;">Lumina Health Platform</h2>
+          <p style="font-size: 0.75rem; color: var(--secondary-text); margin-bottom: 1rem;">End-to-end design system, high-trust portal UI, and diagnostic widgets.</p>
+
+          <div style="background: var(--surface); border-radius: 1rem; padding: 1rem; border: 1px solid rgba(32,36,30,0.1); margin-bottom: 1rem; text-align: left;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.35rem;">
+              <span style="font-weight: 600;">Sprint Progress</span>
+              <span class="font-mono" style="font-weight: 700; color: var(--forest);">85%</span>
+            </div>
+            <div class="progress-track" style="margin-bottom: 0.5rem;">
+              <div class="progress-fill" style="width: 85%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--secondary-text);">
+              <span>Due in 12 days</span>
+              <span class="font-mono">8 / 9 Tasks Done</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem; background: rgba(239, 231, 218, 0.5); border-radius: 0.75rem; font-size: 0.75rem;">
+            <span style="font-weight: 600;">Brand Specs PDF</span>
+            <span class="font-mono" style="background: #fff; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; color: var(--forest); font-size: 0.65rem;">
+              v1.0 APPROVED
+            </span>
+          </div>
+        </div>
+
+        <div style="padding-top: 0.75rem; border-top: 1px solid rgba(32,36,30,0.1); display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; margin-left: 0.25rem;">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff;">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=80&q=80" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; margin-left: -8px;">
+          </div>
+          <span style="font-size: 0.7rem; color: var(--forest); font-weight: 600;">Elena + Sophia</span>
+        </div>
+      </div>
+
+      <!-- Slice 4: Revision Allowance Engine -->
+      <div class="slice-panel slice-4">
+        <div class="slice-accent-bar" style="background: var(--forest);"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+            <span class="font-mono" style="font-size: 0.65rem; color: var(--secondary-text);">03 / SCOPE LOCK</span>
+            <span style="font-size: 0.75rem;">🛡️</span>
+          </div>
+          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Revision Tracker</h3>
+          <p style="font-size: 0.75rem; color: var(--secondary-text); margin-bottom: 1rem;">Server-side limits prevent unpaid scope creep.</p>
+
+          <div style="background: var(--surface); padding: 0.85rem; border-radius: 1rem; border: 1px solid rgba(32,36,30,0.1); margin-bottom: 1rem; text-align: left;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+              <span>Quota Used</span>
+              <span class="font-mono" style="font-weight: 700; color: var(--forest);">1 of 3</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 0.5rem;">
+              <div style="height: 8px; border-radius: 4px; background: var(--forest);"></div>
+              <div style="height: 8px; border-radius: 4px; background: var(--cream-300);"></div>
+              <div style="height: 8px; border-radius: 4px; background: var(--cream-300);"></div>
+            </div>
+            <div style="font-size: 0.65rem; color: var(--secondary-text);">2 revisions remaining</div>
+          </div>
+
+          <div style="background: rgba(215, 247, 165, 0.25); border: 1px solid var(--lime-dark); padding: 0.6rem; border-radius: 0.75rem; font-size: 0.7rem; text-align: left;">
+            "Biomarker card contrast adjusted. Perfect."
+          </div>
+        </div>
+
+        <div style="padding-top: 0.75rem; border-top: 1px solid rgba(32,36,30,0.1); font-size: 0.7rem; color: var(--forest); font-weight: 500;">
+          Auditable Record #12
+        </div>
+      </div>
+
+      <!-- Slice 5: Real-time Invoicing & Settlement -->
+      <div class="slice-panel slice-5">
+        <div class="slice-accent-bar" style="background: var(--forest-light);"></div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+            <span class="font-mono" style="font-size: 0.65rem; color: var(--secondary-text);">04 / FINANCIALS</span>
+            <span class="badge badge-forest" style="font-size: 0.6rem;">PAID 50%</span>
+          </div>
+          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem;">INV-2026-001</h3>
+          <div class="font-mono" style="font-size: 1.4rem; font-weight: 700; color: var(--forest); margin-bottom: 0.75rem;">$10,036.25</div>
+          <p style="font-size: 0.75rem; color: var(--secondary-text); margin-bottom: 1rem;">Deposit settled via automated bank wire.</p>
+
+          <div style="background: var(--surface); padding: 0.75rem; border-radius: 0.75rem; border: 1px solid rgba(32,36,30,0.1); font-size: 0.7rem; text-align: left; font-family: monospace;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+              <span style="color: var(--secondary-text);">Deposit:</span>
+              <span style="color: var(--forest); font-weight: 600;">$5,000.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--secondary-text);">Balance:</span>
+              <span style="font-weight: 700;">$5,036.25</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding-top: 0.75rem; border-top: 1px solid rgba(32,36,30,0.1); font-size: 0.7rem; color: var(--forest); font-weight: 600;">
+          ReportLab PDF Ready
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Disciplines Bar -->
+  <div style="margin-top: 5rem; padding-top: 2rem; border-top: 1px solid rgba(32,36,30,0.1); display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; font-size: 0.75rem; color: var(--secondary-text); font-family: monospace; text-transform: uppercase;">
+    <span>Brand Identity</span>
+    <span>•</span>
+    <span>UI/UX Architecture</span>
+    <span>•</span>
+    <span>3D Motion Graphics</span>
+    <span>•</span>
+    <span>E-Commerce Frontends</span>
+    <span>•</span>
+    <span>Design Studios</span>
+  </div>
+</section>
+
+<!-- CAPABILITIES GRID -->
+<section id="features" style="padding: 6rem 1.5rem; background: var(--cream-50); border-top: 1px solid rgba(32,36,30,0.1);">
+  <div style="max-width: 1200px; margin: 0 auto;">
+    
+    <div style="max-width: 650px; margin-bottom: 3.5rem;">
+      <div class="badge badge-forest" style="margin-bottom: 1rem;">01 / CAPABILITIES</div>
+      <h2 style="font-size: 3rem; font-weight: 500; line-height: 1.15; margin-bottom: 1rem;">
+        Everything freelance crafters need to run their practice.
+      </h2>
+      <p style="color: var(--secondary-text); font-size: 1rem;">
+        Persistent Python business logic enforcing project boundaries, revision allowances, and financial ledgers.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+      
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">👥</div>
+        <h3 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem;">Client Directory</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Complete client profiles with contact emails, notes, project history, and safe soft-archiving to preserve financial audits.
+        </p>
+      </div>
+
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">📁</div>
+        <h3 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem;">Project Workspaces</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Organize briefs, deliverables, sprint tasks, and budgets in clear, dedicated project workspaces.
+        </p>
+      </div>
+
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">📋</div>
+        <h3 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem;">Drag & Drop Kanban</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Move tasks smoothly between To Do, In Progress, In Review, and Done with instantaneous backend state persistence.
+        </p>
+      </div>
+
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">🔄</div>
+        <h3 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem;">Revision Allowance Engine</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Every project enforces contracted revision limits. If a client exceeds the quota, the system halts the request and prompts an add-on discussion.
+        </p>
+      </div>
+
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">✍️</div>
+        <h3 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem;">Client Sign-Offs</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Clients review deliverable versions and sign off with verified timestamps, signature records, and feedback notes.
+        </p>
+      </div>
+
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">🧾</div>
+        <h3 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem;">ReportLab PDF Invoices</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Vector-crisp PDF invoice generation with decimal-accurate subtotals, taxes, and automatic balance-due deductions.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- 3D STUDIO CANVAS SECTION -->
+<section id="3d-studio" style="padding: 6rem 1.5rem; background: var(--cream-100); border-top: 1px solid rgba(32,36,30,0.1); text-align: center;">
+  <div style="max-width: 900px; margin: 0 auto;">
+    <div class="badge badge-forest" style="margin-bottom: 1rem;">02 / SPATIAL ARTIFACT</div>
+    <h2 style="font-size: 3rem; font-weight: 500; line-height: 1.15; margin-bottom: 1rem;">
+      Tactile motion for thoughtful digital work.
+    </h2>
+    <p style="color: var(--secondary-text); font-size: 1rem; max-width: 600px; margin: 0 auto 3rem auto;">
+      Rendered in pure HTML5 Canvas with sine-wave floating interpolation and physical studio lighting.
+    </p>
+
+    <div style="background: var(--surface); border: 1px solid rgba(32,36,30,0.1); border-radius: var(--radius-3xl); padding: 1.5rem; box-shadow: var(--shadow-float); overflow: hidden;">
+      <canvas id="studioCanvas" style="display: block; width: 100%; height: 360px; cursor: grab;"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- METHODOLOGY / WORKFLOW -->
+<section id="workflow" style="padding: 6rem 1.5rem; background: var(--cream-50); border-top: 1px solid rgba(32,36,30,0.1);">
+  <div style="max-width: 1200px; margin: 0 auto;">
+    <div style="text-align: center; max-width: 650px; margin: 0 auto 4rem auto;">
+      <div class="badge badge-forest" style="margin-bottom: 1rem;">03 / METHODOLOGY</div>
+      <h2 style="font-size: 3rem; font-weight: 500; line-height: 1.15; margin-bottom: 1rem;">
+        Four steps from concept to final wire payment.
+      </h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem;">
+      <div class="card">
+        <div class="font-mono" style="font-size: 1.5rem; font-weight: 700; color: var(--forest); margin-bottom: 1rem;">01</div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Client Onboarding</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Register client details and invite them to their tailored review portal.
+        </p>
+      </div>
+      <div class="card">
+        <div class="font-mono" style="font-size: 1.5rem; font-weight: 700; color: var(--forest); margin-bottom: 1rem;">02</div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Milestone Scoping</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Define deliverables, reference files, deadlines, and lock the revision allowance quota.
+        </p>
+      </div>
+      <div class="card">
+        <div class="font-mono" style="font-size: 1.5rem; font-weight: 700; color: var(--forest); margin-bottom: 1rem;">03</div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Iterate & Enforce Quotas</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Upload deliverable versions (v1, v2) with automatic versioning and allowance tracking.
+        </p>
+      </div>
+      <div class="card">
+        <div class="font-mono" style="font-size: 1.5rem; font-weight: 700; color: var(--forest); margin-bottom: 1rem;">04</div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Sign-Off & Settlement</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Client approves final versions. Generate PDF invoices with ReportLab and record payments.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="padding: 6rem 1.5rem; background: var(--cream-100); border-top: 1px solid rgba(32,36,30,0.1); text-align: center;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div style="max-width: 600px; margin: 0 auto 4rem auto;">
+      <div class="badge badge-forest" style="margin-bottom: 1rem;">04 / PRICING</div>
+      <h2 style="font-size: 3rem; font-weight: 500; line-height: 1.15; margin-bottom: 1rem;">
+        Predictable plans for growing crafters.
+      </h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; text-align: left;">
+      <div class="card">
+        <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem;">Freelance Solo</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); margin-bottom: 1.5rem;">Ideal for independent designers getting organized.</p>
+        <div class="font-mono" style="font-size: 2.5rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 1.5rem;">$0</div>
+        <ul style="list-style: none; font-size: 0.8125rem; color: var(--primary-dark); line-height: 2; margin-bottom: 2rem;">
+          <li>✓ 3 Active Client Projects</li>
+          <li>✓ Revision Allowance Tracking</li>
+          <li>✓ 1-Click Client Approvals</li>
+          <li>✓ Standard PDF Invoices</li>
+        </ul>
+        <a href="/dashboard/" class="btn btn-secondary" style="width: 100%;">Start Free</a>
+      </div>
+
+      <div class="card" style="border: 2px solid var(--forest); background: var(--cream-50); box-shadow: var(--shadow-float);">
+        <div class="badge badge-forest" style="margin-bottom: 0.5rem;">STUDIO FAVORITE</div>
+        <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem;">Pro Studio</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); margin-bottom: 1.5rem;">For busy freelancers and design consultants.</p>
+        <div class="font-mono" style="font-size: 2.5rem; font-weight: 700; color: var(--forest); margin-bottom: 1.5rem;">$29 <span style="font-size: 0.875rem; color: var(--secondary-text); font-weight: 400;">/ mo</span></div>
+        <ul style="list-style: none; font-size: 0.8125rem; color: var(--primary-dark); line-height: 2; margin-bottom: 2rem;">
+          <li>✓ Unlimited Clients & Projects</li>
+          <li>✓ Automated Revision Enforcer</li>
+          <li>✓ ReportLab PDF Invoicing Engine</li>
+          <li>✓ Kanban Board with Drag & Drop</li>
+          <li>✓ Balance Due Payment Records</li>
+        </ul>
+        <a href="/dashboard/" class="btn btn-primary" style="width: 100%;">Open Workspace</a>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem;">Agency Scale</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); margin-bottom: 1.5rem;">For boutique design collectives & agencies.</p>
+        <div class="font-mono" style="font-size: 2.5rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 1.5rem;">$79 <span style="font-size: 0.875rem; color: var(--secondary-text); font-weight: 400;">/ mo</span></div>
+        <ul style="list-style: none; font-size: 0.8125rem; color: var(--primary-dark); line-height: 2; margin-bottom: 2rem;">
+          <li>✓ Unlimited Team Members</li>
+          <li>✓ Role-Based Authorization</li>
+          <li>✓ Cash Flow Analytics</li>
+          <li>✓ Priority Studio Support</li>
+        </ul>
+        <a href="/dashboard/" class="btn btn-secondary" style="width: 100%;">Contact Studio</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ SECTION -->
+<section id="faq" style="padding: 6rem 1.5rem; background: var(--cream-50); border-top: 1px solid rgba(32,36,30,0.1);">
+  <div style="max-width: 800px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 3.5rem;">
+      <div class="badge badge-forest" style="margin-bottom: 1rem;">05 / FAQ</div>
+      <h2 style="font-size: 3rem; font-weight: 500; line-height: 1.15;">Answers for creative founders.</h2>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <div class="card">
+        <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem;">How does client access work without forcing them to register?</h4>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          Clients receive a clean, branded link where they can immediately review assigned deliverables, submit structured feedback, and sign off with their name.
+        </p>
+      </div>
+
+      <div class="card">
+        <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem;">How does the revision allowance engine prevent scope creep?</h4>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          When you create a project, you set a revision allowance (e.g. 2 or 3 revisions). Every client change request is tracked and validated against this quota. If a client attempts to submit beyond the quota, Python halts the request.
+        </p>
+      </div>
+
+      <div class="card">
+        <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem;">How are PDF invoices generated?</h4>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+          CreativeFlow utilizes a Python ReportLab backend to generate vector-crisp, professional PDF invoices directly from your project milestone data with decimal-precise balance tracking.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background: var(--primary-dark); color: var(--cream-100); padding: 4rem 1.5rem 2rem 1.5rem;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+    <div>
+      <div class="font-editorial" style="font-size: 1.5rem; font-weight: 600; color: #fff;">
+        Creative<span style="color: var(--lime-accent); font-style: italic;">Flow</span>
+      </div>
+      <p style="font-size: 0.75rem; color: rgba(248, 244, 236, 0.6); margin-top: 0.25rem;">
+        The full-stack creative freelancer operating system.
+      </p>
+    </div>
+
+    <div style="font-size: 0.75rem; color: rgba(248, 244, 236, 0.5);">
+      © {% now "Y" %} CreativeFlow Studio Platform. Powered by Python & Django.
+    </div>
+  </div>
+</footer>
+{% endblock %}
+

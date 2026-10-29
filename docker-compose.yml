@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: creativeflow_db
+    environment:
+      POSTGRES_DB: creativeflow_db
+      POSTGRES_USER: creative_user
+      POSTGRES_PASSWORD: creative_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: creativeflow_backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_demo_data &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+      - backend_media:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "True"
+      SECRET_KEY: "creativeflow-production-secret-key-change-me"
+      ALLOWED_HOSTS: "*"
+      DB_ENGINE: "django.db.backends.postgresql"
+      DB_NAME: "creativeflow_db"
+      DB_USER: "creative_user"
+      DB_PASSWORD: "creative_password"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: creativeflow_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  backend_media:
+

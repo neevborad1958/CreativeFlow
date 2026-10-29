@@ -1,0 +1,121 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Clients{% endblock %}
+
+{% block dashboard_content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(32,36,30,0.1); margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 2.25rem; font-weight: 600;">Client Directory</h1>
+      <p style="color: var(--secondary-text); font-size: 0.875rem;">Manage creative client relationships, accounts, and lifetime billings.</p>
+    </div>
+
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <form method="GET" action="/dashboard/clients/" style="display: flex;">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Search clients..." class="form-input" style="width: 220px; padding: 0.5rem 0.75rem; border-radius: 0.75rem;">
+      </form>
+      <button onclick="openModal('addClientModal')" class="btn btn-primary">+ Add Client</button>
+    </div>
+  </div>
+
+  <!-- Clients Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+    {% for c in clients %}
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <img src="{{ c.avatar_url|default:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80' }}" style="width: 44px; height: 44px; border-radius: 1rem; object-fit: cover;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 600;">{{ c.name }}</h3>
+              <div style="color: var(--forest); font-size: 0.75rem; font-weight: 500;">{{ c.company_name|default:'Independent Client' }}</div>
+            </div>
+          </div>
+
+          <form method="POST" action="/dashboard/clients/" onsubmit="return confirm('Archive this client? Historical financial records will be preserved.');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="archive">
+            <input type="hidden" name="client_id" value="{{ c.id }}">
+            <button type="submit" style="background: none; border: none; cursor: pointer; color: var(--secondary-text);" title="Archive">📦</button>
+          </form>
+        </div>
+
+        <div style="padding: 0.75rem 0; border-top: 1px solid rgba(32,36,30,0.06); border-bottom: 1px solid rgba(32,36,30,0.06); font-size: 0.75rem; color: var(--secondary-text); display: flex; flex-direction: column; gap: 0.35rem;">
+          <div>✉️ {{ c.email }}</div>
+          {% if c.phone %}<div>📞 {{ c.phone }}</div>{% endif %}
+          {% if c.website %}<div>🌐 <a href="{{ c.website }}" target="_blank" style="color: var(--forest); text-decoration: underline;">{{ c.website }}</a></div>{% endif %}
+        </div>
+
+        {% if c.notes %}
+        <div style="margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: var(--cream-50); border-radius: 0.5rem; font-size: 0.75rem; color: var(--secondary-text); font-style: italic;">
+          "{{ c.notes }}"
+        </div>
+        {% endif %}
+      </div>
+
+      <div style="margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid rgba(32,36,30,0.06); display: flex; justify-content: space-between; font-size: 0.75rem; font-family: monospace;">
+        <span style="color: var(--secondary-text);">{{ c.projects.count }} Projects</span>
+        <span style="font-weight: 700; color: var(--forest);">Active CRM</span>
+      </div>
+    </div>
+    {% empty %}
+    <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--secondary-text);">No clients found. Click "+ Add Client" to create your first client profile.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ADD CLIENT MODAL -->
+  <div id="addClientModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.5rem; font-weight: 600;">Add New Client</h3>
+        <button onclick="closeModal('addClientModal')" style="background: none; border: none; font-size: 1.25rem; cursor: pointer;">×</button>
+      </div>
+
+      <form method="POST" action="/dashboard/clients/">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create">
+
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" name="name" required class="form-input" placeholder="e.g. Marcus Vance">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Company / Brand Name</label>
+          <input type="text" name="company_name" class="form-input" placeholder="e.g. Lumina Health Labs">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" name="email" required class="form-input" placeholder="marcus@luminahealth.io">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="text" name="phone" class="form-input" placeholder="+1 (415) 882-9012">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Website URL</label>
+          <input type="url" name="website" class="form-input" placeholder="https://luminahealth.io">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Client Notes & Design Preferences</label>
+          <textarea name="notes" rows="3" class="form-textarea" placeholder="Brand color aesthetics, communication guidelines, etc."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" onclick="closeModal('addClientModal')" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

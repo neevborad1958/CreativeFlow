@@ -1,0 +1,171 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Revision Quota & Scope Enforcer{% endblock %}
+
+{% block dashboard_content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(32,36,30,0.1); margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 2.25rem; font-weight: 600;">Revision Quota Enforcer</h1>
+      <p style="color: var(--secondary-text); font-size: 0.875rem;">Guarding studio profitability by tracking client change requests against contracted rounds.</p>
+    </div>
+  </div>
+
+  <!-- Project Revision Allowance Meters -->
+  <div style="margin-bottom: 2.5rem;">
+    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Project Quota Utilization</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+      {% for proj in projects %}
+      <div class="card" style="padding: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+          <div>
+            <div style="font-size: 0.75rem; color: var(--forest); font-weight: 600;">{{ proj.client.name }}</div>
+            <h3 style="font-size: 1.1rem; font-weight: 600;">{{ proj.name }}</h3>
+          </div>
+          <span class="font-mono" style="font-size: 0.8125rem; font-weight: 700; background: var(--cream-100); padding: 0.25rem 0.6rem; border-radius: 0.5rem; border: 1px solid rgba(32,36,30,0.1);">
+            {{ proj.revisions.count }} / {{ proj.revision_allowance }} Rounds
+          </span>
+        </div>
+
+        <!-- Meter bar -->
+        <div style="background: var(--cream-200); height: 8px; border-radius: 9999px; overflow: hidden; margin-bottom: 0.75rem;">
+          <div style="height: 100%; background: {% if proj.revisions.count >= proj.revision_allowance %}#dc2626{% else %}var(--forest){% endif %}; width: {% widthratio proj.revisions.count proj.revision_allowance 100 %}%;"></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--secondary-text);">
+          <span>Budget: ${{ proj.budget|floatformat:0 }}</span>
+          {% if proj.revisions.count >= proj.revision_allowance %}
+            <span style="color: #dc2626; font-weight: 600;">Quota Maxed (Add-on fee applies)</span>
+          {% else %}
+            <span style="color: var(--forest);">{{ proj.revision_allowance|add:"-1" }} round remaining</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Revisions Table -->
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(32,36,30,0.08); background: var(--cream-50); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 1.15rem; font-weight: 600;">Change Requests Log</h3>
+      <span class="badge badge-sage">{{ revisions.count }} Total Request{{ revisions.count|pluralize }}</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(32,36,30,0.08); color: var(--secondary-text); font-size: 0.75rem; text-transform: uppercase;">
+            <th style="padding: 1rem 1.5rem;">ID</th>
+            <th style="padding: 1rem 1.5rem;">Project & Deliverable</th>
+            <th style="padding: 1rem 1.5rem;">Requested By</th>
+            <th style="padding: 1rem 1.5rem;">Feedback & Notes</th>
+            <th style="padding: 1rem 1.5rem;">Status</th>
+            <th style="padding: 1rem 1.5rem; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rev in revisions %}
+          <tr style="border-bottom: 1px solid rgba(32,36,30,0.05);">
+            <td style="padding: 1rem 1.5rem; font-family: monospace; font-weight: 700;">#REV-{{ rev.id }}</td>
+            <td style="padding: 1rem 1.5rem;">
+              <div style="font-weight: 600;">{{ rev.project.name }}</div>
+              <div style="font-size: 0.75rem; color: var(--secondary-text);">{{ rev.deliverable.title|default:"General Project Scope" }}</div>
+            </td>
+            <td style="padding: 1rem 1.5rem;">
+              <div>{{ rev.requested_by.first_name }} {{ rev.requested_by.last_name }}</div>
+              <div style="font-size: 0.7rem; color: var(--secondary-text);">{{ rev.created_at|date:"M d, Y" }}</div>
+            </td>
+            <td style="padding: 1rem 1.5rem; max-width: 320px;">
+              <div style="font-size: 0.8125rem;">"{{ rev.description }}"</div>
+              {% if rev.freelancer_response %}
+              <div style="margin-top: 0.35rem; font-size: 0.75rem; color: var(--forest); background: var(--cream-100); padding: 0.35rem 0.6rem; border-radius: 0.35rem;">
+                <strong>Studio Response:</strong> {{ rev.freelancer_response }}
+              </div>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem 1.5rem;">
+              {% if rev.status == 'resolved' %}
+                <span class="badge badge-lime">Resolved</span>
+              {% elif rev.status == 'in_progress' %}
+                <span class="badge badge-forest">In Progress</span>
+              {% elif rev.status == 'rejected' %}
+                <span class="badge" style="background: rgba(220,38,38,0.15); color: #dc2626;">Rejected</span>
+              {% else %}
+                <span class="badge badge-sage">Submitted</span>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem 1.5rem; text-align: right;">
+              {% if role != 'client' and rev.status != 'resolved' %}
+              <button onclick="openResolveModal('{{ rev.id }}', '{{ rev.description|escapejs }}')" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                Resolve Request
+              </button>
+              {% else %}
+              <span style="color: var(--secondary-text); font-size: 0.75rem;">Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="padding: 3rem; text-align: center; color: var(--secondary-text);">
+              No revision requests currently filed. Perfect milestone alignment!
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Resolve Revision Modal -->
+<div id="resolveModal" class="modal-backdrop">
+  <div class="card" style="width: 100%; max-width: 500px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="font-size: 1.5rem; font-weight: 600;">Resolve Client Feedback</h2>
+      <button onclick="closeModal('resolveModal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form method="POST" action="/dashboard/revisions/">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="resolve">
+      <input type="hidden" name="revision_id" id="modalRevId">
+
+      <div class="form-group">
+        <label class="form-label">Client Feedback</label>
+        <p id="modalRevText" style="font-size: 0.8125rem; background: var(--cream-100); padding: 0.75rem; border-radius: 0.5rem; border: 1px solid rgba(32,36,30,0.08);"></p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Resolution Status *</label>
+        <select name="status" class="form-select">
+          <option value="resolved">Resolved (Implemented in next build)</option>
+          <option value="in_progress">In Progress (Currently working)</option>
+          <option value="rejected">Declined (Out of scope / Extra milestone required)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Studio Notes / Explanation *</label>
+        <textarea name="response" rows="3" required placeholder="Explain how the feedback was addressed or why an adjustment was made..." class="form-input"></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" onclick="closeModal('resolveModal')" class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Resolution</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openResolveModal(revId, description) {
+  document.getElementById('modalRevId').value = revId;
+  document.getElementById('modalRevText').textContent = '"' + description + '"';
+  openModal('resolveModal');
+}
+</script>
+{% endblock %}
+

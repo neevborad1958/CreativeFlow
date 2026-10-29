@@ -1,0 +1,135 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Milestone Approvals & Sign-Offs{% endblock %}
+
+{% block dashboard_content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(32,36,30,0.1); margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 2.25rem; font-weight: 600;">Sign-Offs & Approvals</h1>
+      <p style="color: var(--secondary-text); font-size: 0.875rem;">Legally sound digital approvals and milestone release locks.</p>
+    </div>
+  </div>
+
+  <!-- Deliverables Pending Sign-off -->
+  <div style="margin-bottom: 2.5rem;">
+    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">
+      Pending Client Review ({{ deliverables_pending.count }})
+    </h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.25rem;">
+      {% for deliv in deliverables_pending %}
+      <div class="card" style="border: 2px dashed var(--sage); display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div>
+              <span class="badge badge-sage" style="font-size: 0.65rem;">{{ deliv.project.name }}</span>
+              <h3 style="font-size: 1.2rem; font-weight: 600; margin-top: 0.35rem;">{{ deliv.title }}</h3>
+            </div>
+            <span class="badge badge-forest">Ready for Sign-Off</span>
+          </div>
+
+          <p style="color: var(--secondary-text); font-size: 0.8125rem; margin-bottom: 1rem;">
+            {{ deliv.description|default:"Awaiting client sign-off on latest iteration." }}
+          </p>
+
+          {% with deliv.versions.last as latest_ver %}
+          {% if latest_ver %}
+          <div style="background: var(--cream-100); padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 0.8125rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>Latest Version:</strong> v{{ latest_ver.version_number }} ({{ latest_ver.file_name }})
+            </div>
+            <a href="{{ latest_ver.file_url }}" target="_blank" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">
+              View File
+            </a>
+          </div>
+
+          {% if role == 'client' %}
+          <form method="POST" action="/dashboard/projects/{{ deliv.project.id }}/" style="margin-top: 1rem;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="approve_version">
+            <input type="hidden" name="version_id" value="{{ latest_ver.id }}">
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+              <label class="form-label" style="font-size: 0.75rem;">Approval Notes / Comments</label>
+              <input type="text" name="feedback" placeholder="Looks great, fully approved!" class="form-input" style="font-size: 0.8125rem; padding: 0.4rem 0.6rem;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+              ✍️ Sign & Approve Milestone (v{{ latest_ver.version_number }})
+            </button>
+          </form>
+          {% else %}
+          <div style="font-size: 0.75rem; color: var(--secondary-text); font-style: italic;">
+            Waiting for client ({{ deliv.project.client.name }}) to review and provide digital sign-off.
+          </div>
+          {% endif %}
+          {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="card" style="grid-column: 1 / -1; padding: 2rem; text-align: center; color: var(--secondary-text);">
+        ✨ No deliverables currently pending sign-off. All active work is up to date!
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Sign-Off History Ledger -->
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(32,36,30,0.08); background: var(--cream-50); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 1.15rem; font-weight: 600;">Approved Deliverables Ledger</h3>
+      <span class="badge badge-lime">{{ approvals.count }} Verified Sign-off{{ approvals.count|pluralize }}</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(32,36,30,0.08); color: var(--secondary-text); font-size: 0.75rem; text-transform: uppercase;">
+            <th style="padding: 1rem 1.5rem;">Deliverable & Version</th>
+            <th style="padding: 1rem 1.5rem;">Sign-Off Date</th>
+            <th style="padding: 1rem 1.5rem;">Client Signature</th>
+            <th style="padding: 1rem 1.5rem;">Client Feedback</th>
+            <th style="padding: 1rem 1.5rem; text-align: right;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in approvals %}
+          <tr style="border-bottom: 1px solid rgba(32,36,30,0.05);">
+            <td style="padding: 1rem 1.5rem;">
+              <div style="font-weight: 600;">{{ app.version.deliverable.title }}</div>
+              <div style="font-size: 0.75rem; color: var(--secondary-text);">
+                {{ app.version.deliverable.project.name }} · v{{ app.version.version_number }}
+              </div>
+            </td>
+            <td style="padding: 1rem 1.5rem;">
+              <div>{{ app.created_at|date:"M d, Y" }}</div>
+              <div style="font-size: 0.7rem; color: var(--secondary-text);">{{ app.created_at|time:"H:i e" }}</div>
+            </td>
+            <td style="padding: 1rem 1.5rem;">
+              <span class="font-editorial" style="font-style: italic; font-size: 1.1rem; color: var(--forest); border-bottom: 1px dashed var(--forest);">
+                {{ app.client_signature|default:"Authorized Stakeholder" }}
+              </span>
+            </td>
+            <td style="padding: 1rem 1.5rem; color: var(--secondary-text);">
+              "{{ app.feedback|default:'Approved without modifications.' }}"
+            </td>
+            <td style="padding: 1rem 1.5rem; text-align: right;">
+              <span class="badge badge-lime">✓ Legally Binding</span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="padding: 3rem; text-align: center; color: var(--secondary-text);">
+              No approvals recorded yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

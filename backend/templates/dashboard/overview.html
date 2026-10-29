@@ -1,0 +1,168 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Overview{% endblock %}
+
+{% block dashboard_content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+  
+  <!-- Greeting -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(32,36,30,0.1); margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 2.25rem; font-weight: 600; line-height: 1.15;">Welcome back, {{ current_user.first_name }}</h1>
+      <p style="color: var(--secondary-text); font-size: 0.875rem; margin-top: 0.25rem;">Live creative pipeline, revision allowances, and cash settlements.</p>
+    </div>
+
+    {% if role != 'client' %}
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/dashboard/projects/" class="btn btn-primary" style="font-size: 0.8125rem;">+ New Project</a>
+      <a href="/dashboard/invoices/" class="btn btn-secondary" style="font-size: 0.8125rem;">🧾 Issue Invoice</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- KPI CARDS -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; color: var(--secondary-text); font-size: 0.7rem; font-family: monospace; margin-bottom: 0.75rem;">
+        <span>ACTIVE PROJECTS</span>
+        <span>📁</span>
+      </div>
+      <div class="font-mono" style="font-size: 2rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.25rem;">
+        {{ active_projects }}
+      </div>
+      <div style="font-size: 0.75rem; color: var(--forest); font-weight: 500;">
+        {{ projects_in_review }} awaiting client review
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; color: var(--secondary-text); font-size: 0.7rem; font-family: monospace; margin-bottom: 0.75rem;">
+        <span>REVISION REQUESTS</span>
+        <span>🔄</span>
+      </div>
+      <div class="font-mono" style="font-size: 2rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.25rem;">
+        {{ pending_revisions }}
+      </div>
+      <div style="font-size: 0.75rem; color: var(--secondary-text);">
+        Enforced by contracted allowance
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; color: var(--secondary-text); font-size: 0.7rem; font-family: monospace; margin-bottom: 0.75rem;">
+        <span>TASK VELOCITY</span>
+        <span>📋</span>
+      </div>
+      <div class="font-mono" style="font-size: 2rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.25rem;">
+        {{ completion_rate }}%
+      </div>
+      <div style="font-size: 0.75rem; color: var(--forest); font-weight: 500;">
+        {{ done_tasks }} of {{ total_tasks }} tasks completed
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; color: var(--secondary-text); font-size: 0.7rem; font-family: monospace; margin-bottom: 0.75rem;">
+        <span>REVENUE RECEIVED</span>
+        <span>💵</span>
+      </div>
+      <div class="font-mono" style="font-size: 2rem; font-weight: 700; color: var(--forest); margin-bottom: 0.25rem;">
+        ${{ total_paid|floatformat:2 }}
+      </div>
+      <div style="font-size: 0.75rem; color: var(--secondary-text);">
+        ${{ outstanding|floatformat:2 }} balance due
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO COLUMN GRID -->
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    
+    <!-- Active Projects List -->
+    <div class="card" style="padding: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(32,36,30,0.1); margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.5rem; font-weight: 600;">Active Projects</h3>
+        <a href="/dashboard/projects/" style="font-size: 0.75rem; color: var(--forest); font-weight: 600;">View all →</a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for p in recent_projects %}
+        <a href="/dashboard/projects/{{ p.id }}/" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--cream-50); border-radius: 1rem; border: 1px solid rgba(32,36,30,0.06); transition: all 0.2s;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span class="badge badge-forest" style="font-size: 0.6rem;">{{ p.get_status_display }}</span>
+              <span style="font-size: 0.75rem; color: var(--secondary-text);">{{ p.project_type }}</span>
+            </div>
+            <div style="font-weight: 600; font-size: 0.9375rem; color: var(--primary-dark);">{{ p.name }}</div>
+            <div style="font-size: 0.75rem; color: var(--secondary-text);">{{ p.client.name }} ({{ p.client.company_name }})</div>
+          </div>
+
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-size: 0.9375rem; font-weight: 700; color: var(--forest); margin-bottom: 0.25rem;">
+              ${{ p.budget|floatformat:2 }}
+            </div>
+            <div class="font-mono" style="font-size: 0.65rem; color: var(--secondary-text);">
+              Due: {{ p.due_date|default:'Ongoing' }}
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Tasks & Invoices Right Column -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      
+      <!-- Priority Tasks -->
+      <div class="card" style="padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(32,36,30,0.1); margin-bottom: 1rem;">
+          <h4 style="font-size: 1.25rem; font-weight: 600;">Priority Tasks</h4>
+          <a href="/dashboard/tasks/" style="font-size: 0.75rem; color: var(--forest); font-weight: 600;">Kanban →</a>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+          {% for t in recent_tasks %}
+          <div style="padding: 0.75rem; background: var(--cream-50); border-radius: 0.75rem; font-size: 0.75rem; border: 1px solid rgba(32,36,30,0.06);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem;">
+              <span style="font-weight: 600; color: var(--primary-dark);">{{ t.title }}</span>
+              <span class="badge badge-cream" style="font-size: 0.55rem;">{{ t.get_priority_display }}</span>
+            </div>
+            <div style="font-size: 0.65rem; color: var(--secondary-text); display: flex; justify-content: space-between;">
+              <span>{{ t.project.name }}</span>
+              <span class="font-mono">{{ t.get_status_display }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recent Invoices -->
+      <div class="card" style="padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(32,36,30,0.1); margin-bottom: 1rem;">
+          <h4 style="font-size: 1.25rem; font-weight: 600;">Recent Invoices</h4>
+          <a href="/dashboard/invoices/" style="font-size: 0.75rem; color: var(--forest); font-weight: 600;">All →</a>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+          {% for inv in recent_invoices %}
+          <div style="padding: 0.75rem; background: var(--cream-50); border-radius: 0.75rem; font-size: 0.75rem; border: 1px solid rgba(32,36,30,0.06); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div class="font-mono" style="font-weight: 600;">{{ inv.invoice_number }}</div>
+              <div style="font-size: 0.65rem; color: var(--secondary-text);">{{ inv.client.name }}</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="font-mono" style="font-weight: 700; color: var(--forest);">${{ inv.total|floatformat:2 }}</div>
+              <span class="badge badge-forest" style="font-size: 0.55rem;">{{ inv.get_status_display }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+

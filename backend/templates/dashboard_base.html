@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="min-height: 100vh; display: flex; background: var(--cream-100);">
+  
+  <!-- SIDEBAR -->
+  <aside style="width: 250px; background: var(--cream-50); border-right: 1px solid rgba(32, 36, 30, 0.1); display: flex; flex-direction: column; justify-content: space-between; shrink: 0; padding: 1.25rem 1rem; position: sticky; top: 0; height: 100vh;">
+    <div>
+      <!-- Brand Logo -->
+      <a href="/" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0 0.5rem;">
+        <div style="width: 2.25rem; height: 2.25rem; border-radius: 0.65rem; background: var(--forest); color: var(--lime-accent); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+          <span class="font-editorial" style="font-style: italic;">CF</span>
+        </div>
+        <div>
+          <div class="font-editorial" style="font-size: 1.2rem; font-weight: 600; line-height: 1.1;">
+            Creative<span style="color: var(--forest); font-style: italic;">Flow</span>
+          </div>
+          <div class="font-mono" style="font-size: 0.6rem; color: var(--secondary-text); text-transform: uppercase;">
+            Studio Workspace
+          </div>
+        </div>
+      </a>
+
+      <!-- Active User Card -->
+      <div style="background: var(--surface); padding: 0.75rem; border-radius: 1rem; border: 1px solid rgba(32,36,30,0.08); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem;">
+        <img src="{{ current_user.avatar_url|default:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80' }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+        <div style="line-height: 1.2; overflow: hidden;">
+          <div style="font-size: 0.75rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap;">{{ current_user.first_name }} {{ current_user.last_name }}</div>
+          <span class="badge badge-forest" style="font-size: 0.55rem; padding: 0.1rem 0.4rem;">
+            {{ current_user.get_role_display }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav style="display: flex; flex-direction: column; gap: 0.35rem;">
+        <a href="/dashboard/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if request.path == '/dashboard/' %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>📊</span>
+          <span>Overview</span>
+        </a>
+
+        <a href="/dashboard/projects/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if '/dashboard/projects/' in request.path %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>📁</span>
+          <span>Projects</span>
+        </a>
+
+        <a href="/dashboard/tasks/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if request.path == '/dashboard/tasks/' %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>📋</span>
+          <span>Tasks & Kanban</span>
+        </a>
+
+        <a href="/dashboard/deliverables/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if request.path == '/dashboard/deliverables/' %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>📦</span>
+          <span>Deliverables</span>
+        </a>
+
+        <a href="/dashboard/revisions/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if request.path == '/dashboard/revisions/' %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>🔄</span>
+          <span>Revisions Quota</span>
+        </a>
+
+        <a href="/dashboard/approvals/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if request.path == '/dashboard/approvals/' %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>✍️</span>
+          <span>Sign-Offs</span>
+        </a>
+
+        <a href="/dashboard/invoices/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if request.path == '/dashboard/invoices/' %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>🧾</span>
+          <span>Invoices & PDF</span>
+        </a>
+
+        {% if role != 'client' %}
+        <a href="/dashboard/clients/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if request.path == '/dashboard/clients/' %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>👥</span>
+          <span>Clients</span>
+        </a>
+
+        <a href="/dashboard/reports/" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.6rem 0.85rem; font-size: 0.8125rem; {% if request.path == '/dashboard/reports/' %}background: var(--forest); color: #fff; font-weight: 600;{% endif %}">
+          <span>📈</span>
+          <span>Reports & Revenue</span>
+        </a>
+        {% endif %}
+      </nav>
+    </div>
+
+    <!-- Bottom Role Switcher & Exit -->
+    <div style="padding-top: 1rem; border-top: 1px solid rgba(32,36,30,0.1);">
+      <div style="background: var(--cream-200); padding: 0.5rem; border-radius: 0.75rem; font-size: 0.7rem; margin-bottom: 0.75rem;">
+        <span class="font-mono" style="color: var(--secondary-text); display: block; margin-bottom: 0.25rem;">Switch Role:</span>
+        <div style="display: flex; gap: 0.25rem;">
+          {% for du in demo_users %}
+            <a href="/switch-role/{{ du.id }}/" style="flex: 1; text-align: center; padding: 0.25rem; border-radius: 0.4rem; font-weight: 500; font-size: 0.65rem; {% if current_user.id == du.id %}background: var(--primary-dark); color: #fff;{% else %}background: var(--surface); color: var(--primary-dark);{% endif %}">
+              {{ du.first_name }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <a href="/" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--secondary-text); padding: 0.25rem 0.5rem;">
+        <span>←</span>
+        <span>Public Website</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+    
+    <!-- Top Header -->
+    <header style="height: 60px; background: rgba(252, 250, 245, 0.8); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(32,36,30,0.1); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50;">
+      <div class="font-mono" style="font-size: 0.75rem; color: var(--secondary-text);">
+        <a href="/dashboard/" style="color: var(--secondary-text);">CreativeFlow</a> / 
+        <span style="color: var(--primary-dark); font-weight: 600;">{% block page_title %}Dashboard{% endblock %}</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.75rem;">
+        <span style="color: var(--secondary-text);">Active View:</span>
+        <span style="font-weight: 600;">{{ current_user.first_name }} {{ current_user.last_name }}</span>
+      </div>
+    </header>
+
+    <!-- Message Alerts Area -->
+    {% if messages %}
+    <div style="padding: 1rem 2rem 0 2rem;">
+      {% for msg in messages %}
+        <div style="padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.8125rem; margin-bottom: 0.5rem; {% if msg.tags == 'error' %}background: #FEE2E2; color: #991B1B; border: 1px solid #F87171;{% else %}background: #D7F7A5; color: #20241E; border: 1px solid #BFDF8C;{% endif %}">
+          {{ msg }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Content Block -->
+    <main style="padding: 2rem; flex: 1;">
+      {% block dashboard_content %}{% endblock %}
+    </main>
+
+  </div>
+
+</div>
+{% endblock %}
+

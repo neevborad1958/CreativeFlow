@@ -1,0 +1,134 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Reports & Studio Analytics{% endblock %}
+
+{% block dashboard_content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(32,36,30,0.1); margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 2.25rem; font-weight: 600;">Reports & Analytics</h1>
+      <p style="color: var(--secondary-text); font-size: 0.875rem;">Real-time financial performance, milestone turnaround velocity, and client profitability.</p>
+    </div>
+
+    <button onclick="window.print()" class="btn btn-secondary">
+      🖨️ Print / Export Summary
+    </button>
+  </div>
+
+  <!-- KPI Metric Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+    <div class="card">
+      <div style="color: var(--secondary-text); font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Gross Invoiced</div>
+      <div class="font-editorial" style="font-size: 2.25rem; font-weight: 600; margin: 0.35rem 0;">${{ total_invoiced|floatformat:2 }}</div>
+      <div style="font-size: 0.75rem; color: var(--forest); font-weight: 500;">Lifetime contractual billing</div>
+    </div>
+
+    <div class="card">
+      <div style="color: var(--secondary-text); font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Collected Revenue</div>
+      <div class="font-editorial" style="font-size: 2.25rem; font-weight: 600; margin: 0.35rem 0; color: var(--forest);">${{ total_paid|floatformat:2 }}</div>
+      <div style="font-size: 0.75rem; color: var(--forest); font-weight: 500;">Cleared to operating account</div>
+    </div>
+
+    <div class="card">
+      <div style="color: var(--secondary-text); font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Outstanding A/R</div>
+      <div class="font-editorial" style="font-size: 2.25rem; font-weight: 600; margin: 0.35rem 0; color: #dc2626;">${{ outstanding|floatformat:2 }}</div>
+      <div style="font-size: 0.75rem; color: var(--secondary-text);">Uncollected receivables</div>
+    </div>
+
+    <div class="card">
+      <div style="color: var(--secondary-text); font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Sprint Completion</div>
+      <div class="font-editorial" style="font-size: 2.25rem; font-weight: 600; margin: 0.35rem 0; color: var(--forest);">{{ rate }}%</div>
+      <div style="font-size: 0.75rem; color: var(--secondary-text);">{{ done_tasks }} of {{ total_tasks }} tasks resolved</div>
+    </div>
+  </div>
+
+  <!-- Monthly Revenue Trend Chart -->
+  <div class="card" style="margin-bottom: 2.5rem; padding: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <div>
+        <h3 style="font-size: 1.25rem; font-weight: 600;">Trailing Monthly Revenue vs Billing</h3>
+        <p style="font-size: 0.8125rem; color: var(--secondary-text);">Direct server-rendered financial velocity breakdown.</p>
+      </div>
+
+      <div style="display: flex; gap: 1.5rem; font-size: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div style="width: 12px; height: 12px; border-radius: 3px; background: var(--forest);"></div>
+          <span>Collected Cash ($)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div style="width: 12px; height: 12px; border-radius: 3px; background: var(--sage);"></div>
+          <span>Invoiced ($)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Bars -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; height: 220px; padding-top: 1rem; border-bottom: 2px solid rgba(32,36,30,0.1); gap: 1rem;">
+      {% for m in monthly_data %}
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; gap: 0.5rem;">
+        <div style="display: flex; gap: 6px; align-items: flex-end; width: 100%; justify-content: center; height: 100%;">
+          <!-- Revenue Bar -->
+          <div title="Revenue: ${{ m.revenue }}" style="width: 24px; background: var(--forest); border-radius: 4px 4px 0 0; height: {% widthratio m.revenue 22000 100 %}%; transition: height 0.5s ease;"></div>
+          <!-- Invoiced Bar -->
+          <div title="Invoiced: ${{ m.invoiced }}" style="width: 24px; background: var(--sage); border-radius: 4px 4px 0 0; height: {% widthratio m.invoiced 22000 100 %}%; transition: height 0.5s ease;"></div>
+        </div>
+        <span class="font-mono" style="font-size: 0.75rem; color: var(--secondary-text); margin-top: 0.5rem;">{{ m.month }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Project Profitability Ledger -->
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(32,36,30,0.08); background: var(--cream-50);">
+      <h3 style="font-size: 1.15rem; font-weight: 600;">Active Engagements Profitability</h3>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(32,36,30,0.08); color: var(--secondary-text); font-size: 0.75rem; text-transform: uppercase;">
+            <th style="padding: 1rem 1.5rem;">Project</th>
+            <th style="padding: 1rem 1.5rem;">Client</th>
+            <th style="padding: 1rem 1.5rem;">Contract Budget</th>
+            <th style="padding: 1rem 1.5rem;">Revisions Quota</th>
+            <th style="padding: 1rem 1.5rem;">Sprint Progress</th>
+            <th style="padding: 1rem 1.5rem; text-align: right;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in projects %}
+          <tr style="border-bottom: 1px solid rgba(32,36,30,0.05);">
+            <td style="padding: 1rem 1.5rem;">
+              <a href="/dashboard/projects/{{ p.id }}/" style="font-weight: 600; color: var(--primary-dark);">
+                {{ p.name }}
+              </a>
+              <div style="font-size: 0.75rem; color: var(--secondary-text);">{{ p.project_type }}</div>
+            </td>
+            <td style="padding: 1rem 1.5rem;">{{ p.client.name }}</td>
+            <td style="padding: 1rem 1.5rem; font-weight: 600;">${{ p.budget|floatformat:2 }}</td>
+            <td style="padding: 1rem 1.5rem;">
+              <span class="font-mono" style="font-size: 0.8125rem;">{{ p.revisions.count }} / {{ p.revision_allowance }}</span>
+            </td>
+            <td style="padding: 1rem 1.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="background: var(--cream-200); width: 80px; height: 6px; border-radius: 9999px; overflow: hidden;">
+                  <div style="background: var(--forest); height: 100%; width: {% if p.tasks.count > 0 %}{% widthratio p.tasks.filter|length p.tasks.count 100 %}{% else %}65{% endif %}%;"></div>
+                </div>
+                <span style="font-size: 0.75rem; color: var(--secondary-text);">{{ p.tasks.count }} tasks</span>
+              </div>
+            </td>
+            <td style="padding: 1rem 1.5rem; text-align: right;">
+              <span class="badge badge-forest">{{ p.get_status_display }}</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

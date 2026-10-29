@@ -1,0 +1,397 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}{{ project.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+  
+  <a href="/dashboard/projects/" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--secondary-text); margin-bottom: 1rem;">
+    <span>← Back to Projects</span>
+  </a>
+
+  <!-- Project Header Banner -->
+  <div class="card" style="padding: 2rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+      <div style="max-width: 750px;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+          <span class="badge badge-forest">{{ project.get_status_display }}</span>
+          <span style="font-size: 0.75rem; color: var(--secondary-text); font-family: monospace;">{{ project.project_type }}</span>
+          <span style="font-size: 0.75rem; color: var(--secondary-text);">• Client: <strong>{{ project.client.name }}</strong> ({{ project.client.company_name }})</span>
+        </div>
+
+        <h1 style="font-size: 2.25rem; font-weight: 600; line-height: 1.15; margin-bottom: 0.5rem;">{{ project.name }}</h1>
+        <p style="color: var(--secondary-text); font-size: 0.875rem; line-height: 1.6;">{{ project.description }}</p>
+      </div>
+
+      <div style="text-align: right; border-left: 1px solid rgba(32,36,30,0.1); padding-left: 2rem;">
+        <span class="font-mono" style="font-size: 0.7rem; color: var(--secondary-text); display: block;">AGREED BUDGET</span>
+        <div class="font-mono" style="font-size: 2rem; font-weight: 700; color: var(--forest); margin-bottom: 0.25rem;">
+          ${{ project.budget|floatformat:2 }}
+        </div>
+        <div class="font-mono" style="font-size: 0.75rem; color: var(--secondary-text);">
+          Due: {{ project.due_date|default:'Ongoing' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation Bar -->
+    <div style="display: flex; gap: 0.5rem; margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid rgba(32,36,30,0.1); overflow-x: auto;">
+      <button class="btn btn-primary tab-btn" data-target="tab-overview">Overview & Brief</button>
+      <button class="btn btn-secondary tab-btn" data-target="tab-tasks">Tasks ({{ tasks.count }})</button>
+      <button class="btn btn-secondary tab-btn" data-target="tab-deliverables">Deliverables ({{ deliverables.count }})</button>
+      <button class="btn btn-secondary tab-btn" data-target="tab-revisions">Revisions ({{ revisions.count }})</button>
+      <button class="btn btn-secondary tab-btn" data-target="tab-approvals">Approvals ({{ approvals.count }})</button>
+      <button class="btn btn-secondary tab-btn" data-target="tab-invoices">Invoices ({{ invoices.count }})</button>
+    </div>
+  </div>
+
+  <!-- TAB PANELS -->
+
+  <!-- 1. OVERVIEW & BRIEF -->
+  <div id="tab-overview" class="tab-panel">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+      <div class="card">
+        <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Creative Brief</h3>
+        <div style="font-size: 0.875rem; color: var(--secondary-text); line-height: 1.7; white-space: pre-line;">
+          {{ project.brief_content|default:'No specific brief content uploaded.' }}
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <!-- Revision Quota Meter -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="font-weight: 600; font-size: 0.875rem;">Revision Quota</span>
+            <span class="font-mono" style="font-weight: 700; color: var(--forest); font-size: 0.875rem;">
+              {{ revisions.count }} of {{ project.revision_allowance }} used
+            </span>
+          </div>
+          <div class="progress-track" style="margin-bottom: 0.5rem;">
+            <div class="progress-fill" style="width: {% widthratio revisions.count project.revision_allowance 100 %}%;"></div>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--secondary-text);">
+            Contracted revision allowance enforces scope boundaries. Extra rounds require an amendment.
+          </p>
+        </div>
+
+        <!-- Client Contact -->
+        <div class="card">
+          <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.75rem;">Client Contact</h4>
+          <div style="font-size: 0.8125rem; color: var(--secondary-text); line-height: 1.6;">
+            <div><strong>{{ project.client.name }}</strong></div>
+            <div>{{ project.client.company_name }}</div>
+            <div>✉️ {{ project.client.email }}</div>
+            {% if project.client.phone %}<div>📞 {{ project.client.phone }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TASKS -->
+  <div id="tab-tasks" class="tab-panel" style="display: none;">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.5rem; font-weight: 600;">Sprint Tasks</h3>
+        <button onclick="openModal('addTaskModal')" class="btn btn-primary">+ Add Task</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for t in tasks %}
+        <div style="padding: 1rem; background: var(--cream-50); border-radius: 0.75rem; border: 1px solid rgba(32,36,30,0.06); display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem;">
+          <div>
+            <div style="font-weight: 600; color: var(--primary-dark); {% if t.status == 'done' %}text-decoration: line-through; color: var(--secondary-text);{% endif %}">
+              {{ t.title }}
+            </div>
+            <div style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 0.2rem;">
+              Priority: {{ t.get_priority_display }} • Due: {{ t.due_date|default:'Flexible' }}
+            </div>
+          </div>
+          <span class="badge {% if t.status == 'done' %}badge-forest{% else %}badge-cream{% endif %}">
+            {{ t.get_status_display }}
+          </span>
+        </div>
+        {% empty %}
+        <p style="color: var(--secondary-text); font-size: 0.875rem;">No tasks defined for this project.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. DELIVERABLES & VERSIONS -->
+  <div id="tab-deliverables" class="tab-panel" style="display: none;">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      {% for d in deliverables %}
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+          <div>
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+              <span class="badge badge-cream">{{ d.format_type }}</span>
+              <span class="badge {% if d.status == 'approved' %}badge-forest{% else %}badge-lime{% endif %}">
+                {{ d.get_status_display }}
+              </span>
+            </div>
+            <h3 style="font-size: 1.35rem; font-weight: 600;">{{ d.title }}</h3>
+            <p style="font-size: 0.8125rem; color: var(--secondary-text); margin-top: 0.25rem;">{{ d.description }}</p>
+          </div>
+
+          {% if role != 'client' %}
+          <button onclick="document.getElementById('uploadDeliverableId').value='{{ d.id }}'; openModal('uploadVersionModal');" class="btn btn-primary" style="font-size: 0.75rem;">
+            Upload New Version
+          </button>
+          {% endif %}
+        </div>
+
+        <!-- Versions Timeline -->
+        <div style="border-top: 1px solid rgba(32,36,30,0.06); padding-top: 1rem;">
+          <span class="font-mono" style="font-size: 0.65rem; color: var(--secondary-text); display: block; margin-bottom: 0.75rem;">VERSION TIMELINE:</span>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            {% for v in d.versions.all %}
+            <div style="padding: 0.75rem 1rem; background: var(--cream-50); border-radius: 0.75rem; border: 1px solid rgba(32,36,30,0.06); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+              <div>
+                <span class="font-mono" style="font-weight: 700; color: var(--forest); margin-right: 0.5rem;">v{{ v.version_number }}</span>
+                <strong>{{ v.file_name }}</strong>
+                {% if v.is_approved %}<span class="badge badge-forest" style="font-size: 0.55rem; margin-left: 0.5rem;">APPROVED</span>{% endif %}
+                {% if v.notes %}<div style="color: var(--secondary-text); font-style: italic; margin-top: 0.2rem;">"{{ v.notes }}"</div>{% endif %}
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                {% if role == 'client' and not v.is_approved %}
+                <form method="POST" action="/dashboard/projects/{{ project.id }}/">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="approve_version">
+                  <input type="hidden" name="version_id" value="{{ v.id }}">
+                  <button type="submit" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.7rem;">Approve Version</button>
+                </form>
+                {% endif %}
+                <a href="{{ v.file_url }}" target="_blank" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.7rem;">Preview File</a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="color: var(--secondary-text);">No deliverables uploaded yet.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- 4. REVISIONS -->
+  <div id="tab-revisions" class="tab-panel" style="display: none;">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h3 style="font-size: 1.5rem; font-weight: 600;">Scope Revisions</h3>
+          <p style="font-size: 0.8125rem; color: var(--secondary-text);">Documented change requests validated against project allowance.</p>
+        </div>
+
+        {% if role == 'client' %}
+        <button onclick="openModal('submitRevisionModal')" class="btn btn-primary">+ Submit Change Request</button>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for r in revisions %}
+        <div style="padding: 1.25rem; background: var(--cream-50); border-radius: 1rem; border: 1px solid rgba(32,36,30,0.08); font-size: 0.8125rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <div>
+              <span class="font-mono" style="font-weight: 700; color: var(--forest);">Revision #{{ r.id }}</span>
+              <strong>• {{ r.deliverable.title }}</strong>
+            </div>
+            <span class="badge {% if r.status == 'resolved' %}badge-forest{% else %}badge-lime{% endif %}">
+              {{ r.get_status_display }}
+            </span>
+          </div>
+
+          <p style="color: var(--secondary-text); background: var(--surface); padding: 0.75rem; border-radius: 0.5rem; border: 1px solid rgba(32,36,30,0.06); margin-bottom: 0.5rem;">
+            "{{ r.description }}"
+          </p>
+
+          {% if r.freelancer_response %}
+          <div style="color: var(--forest); font-weight: 500; font-size: 0.75rem;">
+            Studio response: {{ r.freelancer_response }}
+          </div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p style="color: var(--secondary-text); font-size: 0.875rem;">No revisions submitted for this project.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. APPROVALS -->
+  <div id="tab-approvals" class="tab-panel" style="display: none;">
+    <div class="card">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Client Sign-Offs & Approvals</h3>
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for a in approvals %}
+        <div style="padding: 1.25rem; background: var(--cream-50); border-radius: 1rem; border: 1px solid rgba(32,36,30,0.08); font-size: 0.8125rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <div style="font-weight: 600; font-size: 1rem;">
+              {{ a.version.deliverable.title }} (v{{ a.version.version_number }})
+            </div>
+            <span class="badge badge-forest">APPROVED</span>
+          </div>
+          <p style="color: var(--secondary-text); font-style: italic; margin-bottom: 0.5rem;">
+            "{{ a.feedback }}"
+          </p>
+          <div class="font-mono" style="font-size: 0.7rem; color: var(--secondary-text);">
+            Signatory: {{ a.client_signature|default:a.decided_by.get_full_name }} • Recorded: {{ a.created_at|date:"Y-m-d H:i" }} UTC
+          </div>
+        </div>
+        {% empty %}
+        <p style="color: var(--secondary-text); font-size: 0.875rem;">No approval sign-offs recorded yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. INVOICES -->
+  <div id="tab-invoices" class="tab-panel" style="display: none;">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.5rem; font-weight: 600;">Project Invoices</h3>
+        {% if role != 'client' %}
+        <a href="/dashboard/invoices/" class="btn btn-primary" style="font-size: 0.75rem;">+ Issue Invoice</a>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for inv in invoices %}
+        <div style="padding: 1.25rem; background: var(--cream-50); border-radius: 1rem; border: 1px solid rgba(32,36,30,0.08); display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem;">
+          <div>
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+              <span class="font-mono" style="font-weight: 700;">{{ inv.invoice_number }}</span>
+              <span class="badge badge-forest">{{ inv.get_status_display }}</span>
+            </div>
+            <div style="color: var(--secondary-text); font-size: 0.75rem;">
+              Issued: {{ inv.issue_date }} • Due: {{ inv.due_date }}
+            </div>
+            <div class="font-mono" style="font-size: 0.75rem; color: var(--forest); margin-top: 0.35rem;">
+              Paid: ${{ inv.amount_paid|floatformat:2 }} | Balance Due: ${{ inv.balance_due|floatformat:2 }}
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="font-mono" style="font-size: 1.25rem; font-weight: 700; color: var(--forest);">
+              ${{ inv.total|floatformat:2 }}
+            </div>
+            <a href="/api/v1/invoices/{{ inv.id }}/pdf/" target="_blank" class="btn btn-secondary" style="font-size: 0.75rem;">
+              Download PDF 📄
+            </a>
+          </div>
+        </div>
+        {% empty %}
+        <p style="color: var(--secondary-text); font-size: 0.875rem;">No invoices issued for this project.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD TASK MODAL -->
+  <div id="addTaskModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.5rem; font-weight: 600;">Add Sprint Task</h3>
+        <button onclick="closeModal('addTaskModal')" style="background: none; border: none; font-size: 1.25rem; cursor: pointer;">×</button>
+      </div>
+
+      <form method="POST" action="/dashboard/projects/{{ project.id }}/">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_task">
+
+        <div class="form-group">
+          <label class="form-label">Task Title *</label>
+          <input type="text" name="title" required class="form-input" placeholder="e.g. Export mobile breakpoint assets">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select name="priority" class="form-select">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" onclick="closeModal('addTaskModal')" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- UPLOAD VERSION MODAL -->
+  <div id="uploadVersionModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.5rem; font-weight: 600;">Upload Next Version</h3>
+        <button onclick="closeModal('uploadVersionModal')" style="background: none; border: none; font-size: 1.25rem; cursor: pointer;">×</button>
+      </div>
+
+      <form method="POST" action="/dashboard/projects/{{ project.id }}/">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_version">
+        <input type="hidden" id="uploadDeliverableId" name="deliverable_id" value="">
+
+        <div class="form-group">
+          <label class="form-label">File Name *</label>
+          <input type="text" name="file_name" required class="form-input" placeholder="e.g. Lumina_Dashboard_v3_Final.fig">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Version Changelog / Notes</label>
+          <textarea name="notes" rows="3" class="form-textarea" placeholder="Describe changes made in this iteration..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" onclick="closeModal('uploadVersionModal')" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save & Advance Version</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SUBMIT REVISION MODAL -->
+  <div id="submitRevisionModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.5rem; font-weight: 600;">Request Deliverable Changes</h3>
+        <button onclick="closeModal('submitRevisionModal')" style="background: none; border: none; font-size: 1.25rem; cursor: pointer;">×</button>
+      </div>
+
+      <form method="POST" action="/dashboard/projects/{{ project.id }}/">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="submit_revision">
+
+        <div class="form-group">
+          <label class="form-label">Deliverable *</label>
+          <select name="deliverable_id" class="form-select">
+            {% for d in deliverables %}
+            <option value="{{ d.id }}">{{ d.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Describe Requested Changes *</label>
+          <textarea name="description" rows="4" required class="form-textarea" placeholder="Detail the modifications required..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" onclick="closeModal('submitRevisionModal')" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Change Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
