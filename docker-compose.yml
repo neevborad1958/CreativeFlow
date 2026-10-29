@@ -13,20 +13,16 @@ services:
     ports:
       - "5432:5432"
 
-  backend:
+  web:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: creativeflow_backend
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py seed_demo_data &&
-             python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - ./backend:/app
-      - backend_media:/app/media
+    container_name: creativeflow_app
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - backend_media:/app/backend/media
     environment:
       DEBUG: "True"
       SECRET_KEY: "creativeflow-production-secret-key-change-me"
@@ -40,20 +36,6 @@ services:
     depends_on:
       - db
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: creativeflow_frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-
 volumes:
   postgres_data:
   backend_media:
-
